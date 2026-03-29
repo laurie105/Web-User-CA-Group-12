@@ -1,0 +1,520 @@
+Database Creation
+
+--genres--
+create table genres(
+  genre_id serial primary key,
+  name varchar(100) not null
+);
+--directors--
+create table directors(
+  director_id serial primary key,
+  name varchar(100) not null
+);
+--movies--
+create table movies(
+   movie_id serial primary key,
+   title varchar(300) not null,
+   genre_id int,
+   director_id int,
+   release_year int,
+   foreign key (genre_id) references genres(genre_id),
+   foreign key (director_id) references directors(director_id)
+);
+--reviews--
+create table reviews (
+  review_id serial primary key,
+  movie_id int,
+  reviewer_name varchar(100),
+  rating int check (rating between 1 and 5),
+  comment text,
+  created_at timestamp default now(),
+  foreign key (movie_id) references movies(movie_id)
+);
+
+
+
+
+Filling the Database 
+Source - Letterboxd
+
+Movie 1: Send Help
+insert into genres values(1,'Thriller');
+insert into directors values(1,'Sam Raimi');
+insert into movies values(
+  1,
+  'Send Help',
+  (select genre_id from public.genres where name='Thriller'),
+  (select director_id from public.directors where name='Sam Raimi'),
+  2026);
+insert into reviews values(
+  1,
+  (select movie_id from public.movies where title='Send Help'),
+  'Maddy',
+  3,
+  'Not the best but still Raimi',
+  date 2026-03-29),
+  (
+  2,
+  (select movie_id from public.movies where title='Send Help'),
+  'Tori',
+  4,
+  'Rachel McAdams being a complete girlboss',
+  date '2026-03-29'),
+  (
+  3,
+  (select movie_id from public.movies where title='Send Help'),
+  'Rico',
+  4,
+  'Be nice to your colleagues',
+  date '2026-03-29');
+  
+Movie 2: 10 Things I Hate About You
+insert into genres values(2,'Romance')
+insert into directors values(2,'Gil Junger');
+insert into movies values(
+  2,
+  '10 Things I Hate About You',
+  (select genre_id from genres where name='Romance'),
+  (select director_id from directors where name='Gil Junger'),
+  1999
+);
+insert into reviews values
+(4,
+  (select movie_id from movies where title='10 Things I Hate About You'),
+  'Indra',
+  4,
+  'i love this so much !? how come i''ve seen it only now',
+  date '2026-03-21'
+),
+(5,
+  (select movie_id from movies where title='10 Things I Hate About You'),
+  'Tha',
+  5,
+  'WELLLLLL',
+  date '2026-03-29'
+),
+(6,
+  (select movie_id from movies where title='10 Things I Hate About You'),
+  'Thitia',
+  3,
+  'nice story but i feel like its a bit overhyped.',
+  date '2022-05-10'
+);
+
+Movie 3: Interstellar
+insert into genres values(3,'Sci-Fi');
+insert into directors values(3,'Christopher Nolan');
+insert into movies values (
+  3,
+  'Interstellar',
+  (select genre_id from genres where name='Sci-Fi'),
+  (select director_id from directors where name='Christopher Nolan'),
+  2014
+);
+insert into reviews values
+(7,
+(select movie_id from movies where title='Interstellar'),
+'Evan',
+5,
+'Oh. My. God. I have a headache, but it''s the best headache I''ve ever had.',
+date '2014-11-10'
+),
+(8,
+(select movie_id from movies where title='Interstellar'),
+'Lucy',
+5,
+'i needed a REALLY good cry',
+date '2017-12-28'
+),
+(9,
+(select movie_id from movies where title='Interstellar'),
+'Monika',
+4,
+'what did time ever do to christopher nolan',
+date '2022-10-04'
+);
+
+Movie 4: Barbie
+insert into genres values(4,'Comedy');
+insert into directors values(4,'Greta Gerwig');
+insert into movies values (
+  4,
+  'Barbie',
+  (select genre_id from genres where name='Comedy'),
+  (select director_id from directors where name='Greta Gerwig'),
+  2023
+);
+insert into reviews values
+(10,
+(select movie_id from movies where title='Barbie'),
+'Jay',
+4,
+'Ken is the best disney princess',
+date '2023-07-11'
+),
+(11,
+(select movie_id from movies where title='Barbie'),
+'Seth',
+3,
+'More Cera needed.',
+date '2023-07-21'
+),
+(12,
+(select movie_id from movies where title='Barbie'),
+'David',
+3,
+'Hi Barbie',
+date '2023-07-18'
+);
+
+Movie 5: Avatar
+insert into directors values(5,'James Cameron');
+insert into movies values (
+  5,
+  'Avatar',
+  (select genre_id from genres where name='Sci-Fi'),
+  (select director_id from directors where name='James Cameron'),
+  2009
+);
+insert into reviews values
+(13,
+(select movie_id from movies where title='Avatar'),
+'Juan',
+2,
+'The most overrated movie of all time',
+date '2011-12-14'
+),
+(14,
+(select movie_id from movies where title='Avatar'),
+'Clara',
+1,
+'ryan gosling voice* PAPYRUS!',
+date '2019-05-25'
+),
+(15,
+(select movie_id from movies where title='Avatar'),
+'Patrick',
+4,
+'…what if I learned to speak Na’vi',
+date '2022-09-28'
+);
+
+Movie 6: Get Out
+insert into genres values(5,'Horror');
+insert into directors values(6,'Jordan Peele');
+insert into movies values (
+  6,
+  'Get Out',
+  (select genre_id from genres where name='Horror'),
+  (select director_id from directors where name='Jordan Peele'),
+  2017
+);
+insert into reviews values
+(16,
+(select movie_id from movies where title='Get Out'),
+'Anjy',
+4,
+'he shoulda just getted out',
+date '2020-11-27'
+),
+(17,
+(select movie_id from movies where title='Get Out'),
+'Lily',
+5,
+'… I mean, I told you not to go in that house ',
+date '2022-07-24'
+),
+(18,
+(select movie_id from movies where title='Get Out'),
+'Alor',
+4,
+'One of the most satisfying endings to a movie ever. Jordan Peele is a genius ',
+date '2017-06-24'
+);
+
+Movie 7: Fight Club
+insert into genres values(6,'Drama');
+insert into directors values(7,'David Fincher');
+insert into movies values (
+  7,
+  'Fight Club',
+  (select genre_id from genres where name='Drama'),
+  (select director_id from directors where name='David Fincher'),
+  1999
+);
+insert into reviews values
+(19,
+(select movie_id from movies where title='Fight Club'),
+'Mia',
+5,
+'first watch: fight club is the best movie ever made',
+date '2018-02-18'
+),
+(20,
+(select movie_id from movies where title='Fight Club'),
+'Lia',
+4,
+'i love fight club but i hate people who love fight club',
+date '2016-01-27'
+),
+(21,
+(select movie_id from movies where title='Fight Club'),
+'Kenned',
+5,
+'Sorry, I was instructed not to talk about it.',
+date '2017-01-16'
+);
+
+Movie 8: Gladiator
+insert into genres values(7,'Action');
+insert into directors values(8,'Ridley Scott');
+insert into movies values (
+  8,
+  'Gladiator',
+  (select genre_id from genres where name='Action'),
+  (select director_id from directors where name='Ridley Scott'),
+  2000
+);
+insert into reviews values
+(22,
+(select movie_id from movies where title='Gladiator'),
+'Dirk',
+2,
+'One of the most overrated movies ever. Unconvincing acting, historically incorrect and uncharacteristically bad directing.',
+date '2011-12-29'
+),
+(23,
+(select movie_id from movies where title='Gladiator'),
+'Adam',
+1,
+'i was not entertained',
+date '2020-10-18'
+),
+(24,
+(select movie_id from movies where title='Gladiator'),
+'Jake',
+5,
+'sometimes i can''t believe movies used to look this good.',
+date '2024-11-17'
+);
+
+Movie 9: Dune
+
+insert into directors values(9,'Dennis Villeneuve');
+insert into movies values (
+  9,
+  'Dune',
+  (select genre_id from genres where name='Sci-Fi'),
+  (select director_id from directors where name='Dennis Villeneuve'),
+  2021
+);
+insert into reviews values
+(25,
+(select movie_id from movies where title='Dune'),
+'Cookie',
+2,
+'not bad if u ever just feel like staring at the color orange and not feeling a single emotion for two and a half hours',
+date '2021-10-07'
+),
+(26,
+(select movie_id from movies where title='Dune'),
+'Sree',
+5,
+'global worming',
+date '2022-02-16'
+),
+(27,
+(select movie_id from movies where title='Dune'),
+'Lauren',
+5,
+'this happened to my friend kyle m. one time',
+date '2021-10-21'
+);
+
+Movie 10: Once Upon a Time in Hollywood
+insert into directors values(10,'Quentin Tarantino');
+insert into movies values (
+  10,
+  'Once Upon a Time in Hollywood',
+  (select genre_id from genres where name='Comedy'),
+  (select director_id from directors where name='Quentin Tarantino'),
+  2019
+);
+insert into reviews values
+(28,
+(select movie_id from movies where title='Once Upon a Time in Hollywood'),
+'Tom',
+5,
+'i think i watched this when i was too young before. i get it now',
+date '2023-09-20'
+),
+(29,
+(select movie_id from movies where title='Once Upon a Time in Hollywood'),
+'Ben',
+3,
+'a whole lot of nothing that was quite fun to watch',
+date '2026-03-29'
+),
+(30,
+(select movie_id from movies where title='Once Upon a Time in Hollywood'),
+'Katie',
+2,
+'Sitting through this whole thing was no small feet',
+date '2019-07-25'
+);
+
+Movie 11: The Dark Knight
+insert into movies values (
+  11,
+  'The Dark Knight',
+  (select genre_id from genres where name='Action'),
+  (select director_id from directors where name='Christopher Nolan'),
+  2008
+);
+insert into reviews values
+(31,
+(select movie_id from movies where title='The Dark Knight'),
+'Nikita',
+4,
+'even dark knights have dark nights',
+date '2023-09-12'
+),
+(32,
+(select movie_id from movies where title='The Dark Knight'),
+'Cian',
+3,
+'this gets worse everytime i watch it',
+date '2023-02-16'
+),
+(33,
+(select movie_id from movies where title='The Dark Knight'),
+'Lily',
+4,
+'controversial opinion this film is pretty good actually',
+date '2020-11-15'
+);
+
+Movie 12: Inglourious Basterds
+insert into movies values (
+  12,
+  'Inglourious Basterds',
+  (select genre_id from genres where name='Drama'),
+  (select director_id from directors where name='Quentin Tarantino'),
+  2009
+);
+insert into reviews values
+(34,
+(select movie_id from movies where title='Inglourious Basterds'),
+'Ali',
+5,
+'this film is 100% historically accurate',
+date '2021-05-11'
+),
+(35,
+(select movie_id from movies where title='Inglourious Basterds'),
+'Gee',
+5,
+'maybe i do have an attention span',
+date '2019-01-06'
+),
+(36,
+(select movie_id from movies where title='Inglourious Basterds'),
+'Kayla',
+4,
+'I wish I could get amnesia so I could watch this as my first time again',
+date '2018-11-03'
+);
+
+Movie 13: The Social Network
+insert into movies values (
+  13,
+  'The Social Network',
+  (select genre_id from genres where name='Drama'),
+  (select director_id from directors where name='David Fincher'),
+  2010
+);
+insert into reviews values
+(37,
+(select movie_id from movies where title='The Social Network'),
+'Wes',
+5,
+'david fincher i DEMAND to know what you did with the second armie hammer',
+date '2017-08-13'
+),
+(38,
+(select movie_id from movies where title='The Social Network'),
+'Sarah',
+5,
+'jesse eisenberg''s super punchable face really elevates the whole experience',
+date '2020-06-06'
+),
+(39,
+(select movie_id from movies where title='The Social Network'),
+'Almira',
+2,
+'I didn’t care about this movie at all, great casting tho',
+date '2026-03-29'
+);
+
+Movie 14: Parasite
+insert into directors values(11, 'Bong Joon Ho');
+insert into movies values (
+  14,
+  'Parasite',
+  (select genre_id from genres where name='Drama'),
+  (select director_id from directors where name='Bong Joon Ho'),
+  2019
+);
+insert into reviews values
+(40,
+(select movie_id from movies where title='Parasite'),
+'Kat',
+5,
+'Easily, without a doubt, the best hook of 2019',
+date '2019-08-15'
+),
+(41,
+(select movie_id from movies where title='Parasite'),
+'James',
+4,
+'"No one can imitate North Korean news anchors like you" gotta be the rarest compliment ever',
+date '2023-01-09'
+),
+(42,
+(select movie_id from movies where title='Parasite'),
+'Shea',
+3,
+'decent film but why are all y’all bowing down and worshipping it ',
+date '2019-12-17'
+);
+
+Movie 15: Little Women
+insert into movies values (
+  15,
+  'Little Women',
+  (select genre_id from genres where name='Drama'),
+  (select director_id from directors where name='Greta Gerwig'),
+  2019
+);
+insert into reviews values
+(43,
+(select movie_id from movies where title='Little Women'),
+'Hunter',
+3,
+'funny how shakespeare has been silent ever since little women came out',
+date '2019-12-26'
+),
+(44,
+(select movie_id from movies where title='Little Women'),
+'Jay',
+4,
+'need me a timothée chalamet to tell me im not a career failure at 20',
+date '2019-12-28'
+),
+(45,
+(select movie_id from movies where title='Little Women'),
+'Bree',
+5,
+'I LIVE FOR THIS MOVIE',
+date '2021-01-06'
+);
