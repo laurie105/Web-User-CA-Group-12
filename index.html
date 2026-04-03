@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Reviews</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <h1>Movie Reviews</h1>
+
+    <table id="movies-table">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Genre</th>
+                <th>Director</th>
+                <th>Year</th>
+            </tr>
+        </thead>
+        <tbody id="movies-body">
+            <!-- filled in by js -->
+        </tbody>
+    </table>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // connect to supabase
+        const SUPABASE_URL = 'https://lbqqcuthngmphadsvjnk.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxicXFjdXRobmdtcGhhZHN2am5rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA4MDc2MzIsImV4cCI6MjA4NjM4MzYzMn0.kIVJIgGZsT4h20tM07gObaxsQ0QwLsdRgHjTJsDwsBw';
+        const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        async function loadMovies() {
+            // fetch movies, also grab genre and director
+            const { data, error } = await client
+                .from('movies')
+                .select('title, release_year, genres(name), directors(name)');
+
+            if (error) {
+                console.log('Error loading movies:', error);
+                return;
+            }
+
+            const tbody = document.getElementById('movies-body');
+
+            for (let i = 0; i < data.length; i++) {
+                const movie = data[i];
+                const row = document.createElement('tr');
+
+                row.innerHTML = `
+                    <td>${movie.title}</td>
+                    <td>${movie.genres.name}</td>
+                    <td>${movie.directors.name}</td>
+                    <td>${movie.release_year}</td>
+                `;
+
+                tbody.appendChild(row);
+            }
+        }
+
+        loadMovies();
+    </script>
+
+</body>
+</html>
