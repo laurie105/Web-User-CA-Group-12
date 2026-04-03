@@ -32,10 +32,10 @@
         const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         async function loadMovies() {
-            // fetch movies, also grab genre and director
+            // fetch movies with genre and director names
             const { data, error } = await client
                 .from('movies')
-                .select('title, release_year, genres(name), directors(name)');
+                .select('movie_id, title, release_year, genres(name), directors(name)');
 
             if (error) {
                 console.log('Error loading movies:', error);
@@ -47,6 +47,7 @@
             for (let i = 0; i < data.length; i++) {
                 const movie = data[i];
                 const row = document.createElement('tr');
+                row.style.cursor = 'pointer';
 
                 row.innerHTML = `
                     <td>${movie.title}</td>
@@ -55,8 +56,62 @@
                     <td>${movie.release_year}</td>
                 `;
 
+                // click to show/hide reviews
+                row.addEventListener('click', function () {
+                    toggleReviews(movie.movie_id, row);
+                });
+
                 tbody.appendChild(row);
             }
+        }
+
+        // show or hide reviews for a movie
+        async function toggleReviews(movieId, row) {
+            // if reviews row already exists, just toggle it
+            const nextRow = row.nextElementSibling;
+            if (nextRow && nextRow.classList.contains('reviews-row')) {
+                nextRow.remove();
+                return;
+            }
+
+            // fetch reviews for this movie
+            const { data, error } = await client
+                .from('reviews')
+                .select('reviewer_name, rating, comment, created_at')
+                .eq('movie_id', movieId)
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                console.log('Error loading reviews:', error);
+                return;
+            }
+
+            // create a new row to hold the reviews
+            const reviewsRow = document.createElement('tr');
+            reviewsRow.classList.add('reviews-row');
+
+            const cell = document.createElement('td');
+            cell.colSpan = 4;
+
+            if (data.length === 0) {
+                cell.innerHTML = '<p class="no-reviews">No reviews yet.</p>';
+            } else {
+                let html = '<div class="reviews-list">';
+                for (let i = 0; i < data.length; i++) {
+                    const r = data[i];
+                    html += `
+                        <div class="review">
+                            <strong>${r.reviewer_name}</strong> - ${r.rating}/5
+                            <p>${r.comment}</p>
+                        </div>
+                    `;
+                }
+                html += '</div>';
+                cell.innerHTML = html;
+            }
+
+            reviewsRow.appendChild(cell);
+            row.after(reviewsRow);
         }
 
         loadMovies();

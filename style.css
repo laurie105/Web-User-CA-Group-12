@@ -29,3 +29,31 @@ th {
 tr:hover {
     background-color: #f0f0f0;
 }
+
+/* reviews dropdown */
+.reviews-row td {
+    background-color: #fafafa;
+    padding: 15px 20px;
+}
+
+.reviews-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.review {
+    padding: 8px 12px;
+    background-color: #fff;
+    border: 1px solid #eee;
+    border-radius: 4px;
+}
+
+.review p {
+    margin: 5px 0 0 0;
+}
+
+.no-reviews {
+    color: #888;
+    margin: 0;
+}
