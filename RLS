@@ -1,6 +1,66 @@
+
+DIRECTORS (READ ONLY)
+
 ALTER TABLE directors ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Anyone can read"
+CREATE POLICY "directors_select"
 ON directors
 FOR SELECT
+USING (true);
+
+
+GENRES (READ ONLY)
+
+ALTER TABLE genres ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "genres_select"
+ON genres
+FOR SELECT
+USING (true);
+
+
+MOVIES (FULL CRUD)
+
+ALTER TABLE movies ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "movies_select"
+ON movies
+FOR SELECT
+USING (true);
+
+CREATE POLICY "movies_insert"
+ON movies
+FOR INSERT
+WITH CHECK (true);
+
+CREATE POLICY "movies_update"
+ON movies
+FOR UPDATE
+USING (true);
+
+CREATE POLICY "movies_delete"
+ON movies
+FOR DELETE
+USING (true);
+
+
+REVIEWS (FULL CRUD)
+
+ALTER TABLE reviews ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "reviews_select"
+ON reviews
+FOR SELECT
+USING (true);
+
+CREATE POLICY "reviews_insert"
+ON reviews
+FOR INSERT
+WITH CHECK (true);
+
+CREATE POLICY "reviews_update"
+ON reviews
+FOR UPDATE
+USING (true);
+
+CREATE POLICY "reviews_delete"
+ON reviews
+FOR DELETE
 USING (true);
 
