@@ -1,0 +1,6 @@
+ALTER TABLE directors ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Anyone can read"
+ON directors
+FOR SELECT
+USING (true);
+
