@@ -1,130 +1,160 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Movie Reviews</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <title>Movie App</title>
+  <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
-    <!--nav bar -->
-    <nav class="nav-bar">
-        <a href="index.html">Home</a>
-        <a href="add-movie.html">Add Movie</a>
-        <a href="add-review.html">Add Review</a>
-        <a href="manage.html">Manage Directors & Genres</a>
-        <a href="edit-movie.html">Edit Movie</a>
-    </nav>
+<!-- NAV -->
 
-    <h1>Movie Reviews</h1>
+<nav class="nav-bar">
+  <a href="#">Home</a>
+</nav>
 
-    <table id="movies-table">
-        <thead>
-            <tr>
-                <th>Title</th>
-                <th>Genre</th>
-                <th>Director</th>
-                <th>Year</th>
-            </tr>
-        </thead>
-        <tbody id="movies-body">
-            <!-- filled in by js -->
-        </tbody>
-    </table>
+<h1>Movie App</h1>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script>
-        // connect to supabase
-        const SUPABASE_URL = 'https://lbqqcuthngmphadsvjnk.supabase.co';
+<!-- ADD MOVIE -->
+
+<h2>Add Movie</h2>
+<input type="text" id="title" placeholder="Title">
+<input type="number" id="year" placeholder="Year">
+<button onclick="addMovie()">Add</button>
+
+<hr>
+
+<!-- MOVIE TABLE -->
+
+<table>
+  <thead>
+    <tr>
+      <th>Title</th>
+      <th>Genre</th>
+      <th>Director</th>
+      <th>Year</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody id="movies-body"></tbody>
+</table>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+
+ const SUPABASE_URL = 'https://lbqqcuthngmphadsvjnk.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxicXFjdXRobmdtcGhhZHN2am5rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA4MDc2MzIsImV4cCI6MjA4NjM4MzYzMn0.kIVJIgGZsT4h20tM07gObaxsQ0QwLsdRgHjTJsDwsBw';
         const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        async function loadMovies() {
-            // fetch movies with genre and director names
-            const { data, error } = await client
-                .from('movies')
-                .select('movie_id, title, release_year, genres(name), directors(name)');
 
-            if (error) {
-                console.log('Error loading movies:', error);
-                return;
-            }
+// LOAD MOVIES (READ)
+async function loadMovies() {
+  const { data } = await client
+    .from("movies")
+    .select("movie_id, title, release_year, genres(name), directors(name)");
 
-            const tbody = document.getElementById('movies-body');
+  const tbody = document.getElementById("movies-body");
+  tbody.innerHTML = "";
 
-            for (let i = 0; i < data.length; i++) {
-                const movie = data[i];
-                const row = document.createElement('tr');
-                row.style.cursor = 'pointer';
+  data.forEach(movie => {
+    const row = document.createElement("tr");
 
-                row.innerHTML = `
-                    <td>${movie.title}</td>
-                    <td>${movie.genres.name}</td>
-                    <td>${movie.directors.name}</td>
-                    <td>${movie.release_year}</td>
-                `;
+    row.innerHTML = `
+      <td>${movie.title}</td>
+      <td>${movie.genres?.name || ""}</td>
+      <td>${movie.directors?.name || ""}</td>
+      <td>${movie.release_year}</td>
+      <td>
+        <button onclick="editMovie(${movie.movie_id}, '${movie.title}')">Edit</button>
+        <button onclick="deleteMovie(${movie.movie_id})">Delete</button>
+      </td>
+    `;
 
-                // click to show/hide reviews
-                row.addEventListener('click', function () {
-                    toggleReviews(movie.movie_id, row);
-                });
+    // CLICK → show reviews
+    row.addEventListener("click", function (e) {
+      // stop click if button pressed
+      if (e.target.tagName === "BUTTON") return;
+      toggleReviews(movie.movie_id, row);
+    });
 
-                tbody.appendChild(row);
-            }
-        }
+    tbody.appendChild(row);
+  });
+}
 
-        // show or hide reviews for a movie
-        async function toggleReviews(movieId, row) {
-            // if reviews row already exists, just toggle it
-            const nextRow = row.nextElementSibling;
-            if (nextRow && nextRow.classList.contains('reviews-row')) {
-                nextRow.remove();
-                return;
-            }
+// CREATE
+async function addMovie() {
+  const title = document.getElementById("title").value;
+  const year = document.getElementById("year").value;
 
-            // fetch reviews for this movie
-            const { data, error } = await client
-                .from('reviews')
-                .select('reviewer_name, rating, comment, created_at')
-                .eq('movie_id', movieId)
-                .order('created_at', { ascending: false });
+  await client.from("movies").insert([
+    { title: title, release_year: year }
+  ]);
 
-            if (error) {
-                console.log('Error loading reviews:', error);
-                return;
-            }
+  loadMovies();
+}
 
-            // create a new row to hold the reviews
-            const reviewsRow = document.createElement('tr');
-            reviewsRow.classList.add('reviews-row');
+// DELETE
+async function deleteMovie(id) {
+  await client.from("movies").delete().eq("movie_id", id);
+  loadMovies();
+}
 
-            const cell = document.createElement('td');
-            cell.colSpan = 4;
 
-            if (data.length === 0) {
-                cell.innerHTML = '<p class="no-reviews">No reviews yet.</p>';
-            } else {
-                let html = '<div class="reviews-list">';
-                for (let i = 0; i < data.length; i++) {
-                    const r = data[i];
-                    html += `
-                        <div class="review">
-                            <strong>${r.reviewer_name}</strong> - ${r.rating}/5
-                            <p>${r.comment}</p>
-                        </div>
-                    `;
-                }
-                html += '</div>';
-                cell.innerHTML = html;
-            }
+async function editMovie(id, oldTitle) {
+  const newTitle = prompt("New title:", oldTitle);
+  if (!newTitle) return;
 
-            reviewsRow.appendChild(cell);
-            row.after(reviewsRow);
-        }
+  await client.from("movies")
+    .update({ title: newTitle })
+    .eq("movie_id", id);
 
-        loadMovies();
-    </script>
+  loadMovies();
+}
+
+// SHOW REVIEWS
+async function toggleReviews(movieId, row) {
+
+  const nextRow = row.nextElementSibling;
+
+  if (nextRow && nextRow.classList.contains("reviews-row")) {
+    nextRow.remove();
+    return;
+  }
+
+  const { data } = await client
+    .from("reviews")
+    .select("reviewer_name, rating, comment")
+    .eq("movie_id", movieId);
+
+  const reviewsRow = document.createElement("tr");
+  reviewsRow.classList.add("reviews-row");
+
+  const cell = document.createElement("td");
+  cell.colSpan = 5;
+
+  if (data.length === 0) {
+    cell.innerHTML = "No reviews yet";
+  } else {
+    let html = "";
+    data.forEach(r => {
+      html += `
+        <p><strong>${r.reviewer_name}</strong> (${r.rating}/5): ${r.comment}</p>
+      `;
+    });
+    cell.innerHTML = html;
+  }
+
+  reviewsRow.appendChild(cell);
+  row.after(reviewsRow);
+}
+
+// RUN
+loadMovies();
+
+</script>
 
 </body>
 </html>
