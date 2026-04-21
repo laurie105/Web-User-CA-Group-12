@@ -74,3 +74,39 @@ tr:hover {
     color: #888;
     margin: 0;
 }
+
+/* DARK MODE */
+
+.dark-mode {
+  background-color: #121212;
+  color: white;
+}
+
+.dark-mode table {
+  background-color: #1e1e1e;
+}
+
+.dark-mode th {
+  background-color: #222;
+  color: white;
+}
+
+.dark-mode td {
+  color: white;
+}
+
+.dark-mode .nav-bar {
+  background-color: #111;
+}
+
+.dark-mode .review {
+  background-color: #2a2a2a;
+  border-color: #444;
+}
+body {
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+table, th, td, .nav-bar, .review {
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
