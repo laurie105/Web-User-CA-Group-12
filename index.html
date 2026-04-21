@@ -17,6 +17,21 @@
 
 <h1>Movie App</h1>
 
+<input 
+  type="text" 
+  id="search" 
+  placeholder="Search movies..." 
+  oninput="loadMovies()"
+>
+
+<label for="sort">Sort by:</label>
+<select id="sort" onchange="loadMovies()">
+  <option value="title-asc">Title (A–Z)</option>
+  <option value="title-desc">Title (Z–A)</option>
+  <option value="year-asc">Year (Oldest)</option>
+  <option value="year-desc">Year (Newest)</option>
+</select>
+
 <!-- ADD MOVIE -->
 
 <h2>Add Movie</h2>
@@ -52,9 +67,26 @@
 
 // LOAD MOVIES (READ)
 async function loadMovies() {
-  const { data } = await client
-    .from("movies")
-    .select("movie_id, title, release_year, genres(name), directors(name)");
+  const searchValue = document.getElementById("search")?.value || "";
+  const sortValue = document.getElementById("sort")?.value || "title-asc";
+  let query = client
+  .from("movies")
+  .select("movie_id, title, release_year, genres(name), directors(name)");
+  if (searchValue) {
+  query = query.ilike("title", `%${searchValue}%`);
+}
+
+if (sortValue === "title-asc") {
+  query = query.order("title", { ascending: true });
+} else if (sortValue === "title-desc") {
+  query = query.order("title", { ascending: false });
+} else if (sortValue === "year-asc") {
+  query = query.order("release_year", { ascending: true });
+} else if (sortValue === "year-desc") {
+  query = query.order("release_year", { ascending: false });
+}
+
+const { data } = await query;
 
   const tbody = document.getElementById("movies-body");
   tbody.innerHTML = "";
