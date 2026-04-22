@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Reviews</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<nav class="nav-bar">
+  <a href="index.html">Home</a>
+  <a href="reviews.html">Reviews</a>
+</nav>
+
+<h1>All Reviews</h1>
+
+<!-- SEARCH -->
+<input 
+  type="text" 
+  id="search" 
+  placeholder="Search by movie title..." 
+  oninput="loadReviews()"
+>
+
+<!-- SORT -->
+<label for="sort">Sort by:</label>
+<select id="sort" onchange="loadReviews()">
+  <option value="movie-asc">Movie (A–Z)</option>
+  <option value="movie-desc">Movie (Z–A)</option>
+  <option value="rating-desc">Rating (High → Low)</option>
+  <option value="rating-asc">Rating (Low → High)</option>
+</select>
+
+<!-- FILTER -->
+<label for="filter">Minimum Rating:</label>
+<select id="filter" onchange="loadReviews()">
+  <option value="0">All</option>
+  <option value="1">1⭐+</option>
+  <option value="2">2⭐+</option>
+  <option value="3">3⭐+</option>
+  <option value="4">4⭐+</option>
+  <option value="5">5⭐ only</option>
+</select>
+
+<!-- TABLE -->
+<table>
+  <thead>
+    <tr>
+      <th>Movie</th>
+      <th>Reviewer</th>
+      <th>Rating</th>
+      <th>Comment</th>
+    </tr>
+  </thead>
+  <tbody id="reviews-body"></tbody>
+</table>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+  const SUPABASE_URL = 'https://lbqqcuthngmphadsvjnk.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxicXFjdXRobmdtcGhhZHN2am5rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA4MDc2MzIsImV4cCI6MjA4NjM4MzYzMn0.kIVJIgGZsT4h20tM07gObaxsQ0QwLsdRgHjTJsDwsBw';
+  const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  async function loadReviews() {
+    const searchValue = document.getElementById("search")?.value || "";
+    const sortValue = document.getElementById("sort")?.value || "movie-asc";
+    const filterValue = document.getElementById("filter")?.value || "0";
+
+    let query = client
+      .from("reviews")
+      .select("reviewer_name, rating, comment, movies(title)");
+
+    // SEARCH
+    if (searchValue) {
+      query = query.ilike("movies.title", `%${searchValue}%`);
+    }
+
+    // FILTER
+    if (filterValue !== "0") {
+      query = query.gte("rating", filterValue);
+    }
+
+    // SORT
+    if (sortValue === "movie-asc") {
+      query = query.order("title", { foreignTable: "movies", ascending: true });
+    } else if (sortValue === "movie-desc") {
+      query = query.order("title", { foreignTable: "movies", ascending: false });
+    } else if (sortValue === "rating-desc") {
+      query = query.order("rating", { ascending: false });
+    } else if (sortValue === "rating-asc") {
+      query = query.order("rating", { ascending: true });
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+      console.log("Error loading reviews:", error);
+      return;
+    }
+
+    const tbody = document.getElementById("reviews-body");
+    tbody.innerHTML = "";
+
+    data.forEach(review => {
+      const row = document.createElement("tr");
+
+      const stars = "⭐".repeat(review.rating) + "☆".repeat(5 - review.rating);
+
+      row.innerHTML = `
+        <td>${review.movies?.title || "Unknown"}</td>
+        <td>${review.reviewer_name}</td>
+        <td>${stars}</td>
+        <td>${review.comment}</td>
+      `;
+
+      tbody.appendChild(row);
+    });
+  }
+
+  loadReviews();
+</script>
+
+</body>
+</html>
