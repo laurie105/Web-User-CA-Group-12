@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Directors</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<!-- NAV -->
+
+<nav class="nav-bar">
+  <a href="index.html">Home</a>
+  <a href="reviews.html">Reviews</a>
+  <a href="directors.html">Directors</a>
+  <a href="about.html">About</a>
+</nav>
+
+<h1>Directors</h1>
+
+<!-- ADD DIRECTOR -->
+
+<h2>Add Director</h2>
+<input type="text" id="name" placeholder="Director name">
+<button onclick="addDirector()">Add</button>
+
+<hr>
+
+<!-- DIRECTORS TABLE -->
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody id="directors-body"></tbody>
+</table>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+
+ const SUPABASE_URL = 'https://lbqqcuthngmphadsvjnk.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxicXFjdXRobmdtcGhhZHN2am5rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA4MDc2MzIsImV4cCI6MjA4NjM4MzYzMn0.kIVJIgGZsT4h20tM07gObaxsQ0QwLsdRgHjTJsDwsBw';
+        const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// LOAD DIRECTORS (READ)
+async function loadDirectors() {
+  const { data, error } = await client
+    .from("directors")
+    .select("director_id, name")
+    .order("name", { ascending: true });
+
+  if (error) {
+    console.log("Error loading directors:", error);
+    return;
+  }
+
+  const tbody = document.getElementById("directors-body");
+  tbody.innerHTML = "";
+
+  data.forEach(director => {
+    const row = document.createElement("tr");
+
+    row.innerHTML = `
+      <td>${director.name}</td>
+      <td>
+        <button onclick="editDirector(${director.director_id}, '${director.name}')">Edit</button>
+        <button onclick="deleteDirector(${director.director_id})">Delete</button>
+      </td>
+    `;
+
+    tbody.appendChild(row);
+  });
+}
+
+// CREATE
+async function addDirector() {
+  const name = document.getElementById("name").value;
+
+  if (!name) {
+    alert("Please enter a director name");
+    return;
+  }
+
+  await client.from("directors").insert([{ name: name }]);
+
+  document.getElementById("name").value = "";
+  loadDirectors();
+}
+
+// DELETE
+async function deleteDirector(id) {
+  await client.from("directors").delete().eq("director_id", id);
+  loadDirectors();
+}
+
+async function editDirector(id, oldName) {
+  const newName = prompt("New name:", oldName);
+  if (!newName) return;
+
+  await client.from("directors")
+    .update({ name: newName })
+    .eq("director_id", id);
+
+  loadDirectors();
+}
+
+loadDirectors();
+
+</script>
+
+</body>
+</html>
