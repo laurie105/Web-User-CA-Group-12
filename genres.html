@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Genres</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<nav class="nav-bar">
+  <a href="index.html">Home</a>
+  <a href="reviews.html">Reviews</a>
+  <a href="directors.html">Directors</a>
+  <a href="genres.html">Genres</a>
+  <a href="about.html">About</a>
+</nav>
+
+<h1>Browse by Genre</h1>
+
+<!-- GENRE DROPDOWN -->
+<label>Select Genre:</label>
+<select id="genre-select" onchange="loadMoviesByGenre()">
+  <option value="">All Genres</option>
+</select>
+
+<!-- MOVIES TABLE -->
+<table>
+  <thead>
+    <tr>
+      <th>Title</th>
+      <th>Year</th>
+    </tr>
+  </thead>
+  <tbody id="movies-body"></tbody>
+</table>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+const SUPABASE_URL = 'https://lbqqcuthngmphadsvjnk.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxicXFjdXRobmdtcGhhZHN2am5rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA4MDc2MzIsImV4cCI6MjA4NjM4MzYzMn0.kIVJIgGZsT4h20tM07gObaxsQ0QwLsdRgHjTJsDwsBw';
+const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+async function loadGenres() {
+  const { data } = await client.from("genres").select("*");
+
+  const select = document.getElementById("genre-select");
+
+  data.forEach(g => {
+    const option = document.createElement("option");
+    option.value = g.genre_id;
+    option.textContent = g.name;
+    select.appendChild(option);
+  });
+}
+
+async function loadMoviesByGenre() {
+  const genreId = document.getElementById("genre-select").value;
+
+  let query = client
+    .from("movies")
+    .select("title, release_year");
+
+  if (genreId) {
+    query = query.eq("genre_id", genreId);
+  }
+
+  const { data } = await query;
+
+  const tbody = document.getElementById("movies-body");
+  tbody.innerHTML = "";
+
+  data.forEach(movie => {
+    const row = document.createElement("tr");
+
+    row.innerHTML = `
+      <td>${movie.title}</td>
+      <td>${movie.release_year}</td>
+    `;
+
+    tbody.appendChild(row);
+  });
+}
+
+loadGenres();
+loadMoviesByGenre();
+</script>
+
+</body>
+</html>
